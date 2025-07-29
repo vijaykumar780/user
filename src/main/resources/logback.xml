@@ -1,24 +1,13 @@
 <configuration>
-    <property name="LOG_PATH" value="${user.home}/logs"/>
-
-    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/app.log</file>
-
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- Rotated log files will be named like app.2024-07-21.log -->
-            <fileNamePattern>${LOG_PATH}/app.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- Keep up to 30 days of log files -->
-            <maxHistory>30</maxHistory>
-            <!-- Total size cap for all archived logs -->
-            <totalSizeCap>1GB</totalSizeCap>
-        </rollingPolicy>
-
+    <!-- Console appender for STDOUT -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
+    <!-- Root logger sends logs only to STDOUT -->
     <root level="INFO">
-        <appender-ref ref="ROLLING"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: springboot-app
-          image: 943645053812.dkr.ecr.eu-west-2.amazonaws.com/springboot-user-app:latest
+          image: 400095110999.dkr.ecr.eu-west-2.amazonaws.com/springboot:latest7
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -30,16 +30,16 @@ spec:
               value: "prod"
           livenessProbe:
             httpGet:
-              path: /health
+              path: /user/health
               port: 8080
             initialDelaySeconds: 30
-            periodSeconds: 10
+            periodSeconds: 1000
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /health
+              path: /user/health
               port: 8080
             initialDelaySeconds: 10
-            periodSeconds: 5
+            periodSeconds: 1000
             failureThreshold: 3
 
