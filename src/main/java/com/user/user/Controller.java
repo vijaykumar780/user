@@ -1,13 +1,20 @@
 package com.user.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -15,8 +22,15 @@ public class Controller {
 
     private final MeterRegistry meterRegistry;
 
-    public Controller(MeterRegistry meterRegistry) {
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public Controller(MeterRegistry meterRegistry,
+                      KafkaTemplate<String, String> kafkaTemplate) {
         this.meterRegistry = meterRegistry;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @GetMapping("/health")
@@ -32,13 +46,21 @@ public class Controller {
 
     @GetMapping("/user")
     @Timed(value = "api.users.time", description = "Time to fetch users")
-    public ResponseEntity<Map<String, String>> user() {
+    public ResponseEntity<String> user() {
         meterRegistry.counter("api.users.count", "status", "success").increment();
 
-        Map<String, String> user = new HashMap<>();
-        user.put("name", "Aws1");
-        user.put("email", "email");
-        log.info("User: {}", user);
-        return ResponseEntity.ok(user);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", "Aws1");
+        jsonObject.put("email", System.currentTimeMillis()+"@gmail.com");
+        jsonObject.put("timestamp", System.currentTimeMillis());
+        jsonObject.put("id", UUID.randomUUID());
+        try {
+            kafkaTemplate.send("logs", String.valueOf(jsonObject));
+        } catch (Exception e) {
+            log.error("Error sending user data to Kafka", e);
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonObject.toString());
     }
 }
