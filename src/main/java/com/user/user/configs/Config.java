@@ -1,5 +1,6 @@
 package com.user.user.configs;
 
+import com.google.gson.Gson;
 import io.micrometer.cloudwatch2.CloudWatchConfig;
 import io.micrometer.cloudwatch2.CloudWatchMeterRegistry;
 import io.micrometer.core.instrument.Clock;
@@ -62,4 +63,10 @@ public class Config {
     public TimedAspect timedAspect(MeterRegistry registry) {
         return new TimedAspect(registry);
     }
+
+    @Bean
+    public Gson gson() {
+        return new Gson();
+    }
+
 }

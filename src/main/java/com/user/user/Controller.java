@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
@@ -46,16 +47,17 @@ public class Controller {
 
     @GetMapping("/user")
     @Timed(value = "api.users.time", description = "Time to fetch users")
-    public ResponseEntity<String> user() {
+    public ResponseEntity<String> user(@RequestParam String userId) {
         meterRegistry.counter("api.users.count", "status", "success").increment();
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("name", "Aws1");
+        jsonObject.put("name", userId);
         jsonObject.put("email", System.currentTimeMillis()+"@gmail.com");
         jsonObject.put("timestamp", System.currentTimeMillis());
         jsonObject.put("id", UUID.randomUUID());
         try {
-            kafkaTemplate.send("logs", String.valueOf(jsonObject));
+            // kafka should be working
+            //kafkaTemplate.send("logs", String.valueOf(jsonObject));
         } catch (Exception e) {
             log.error("Error sending user data to Kafka", e);
         }
